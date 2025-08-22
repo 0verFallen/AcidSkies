@@ -8,10 +8,16 @@ local production_types = {
     ["assembling-machine"] = true,
     ["furnace"] = true,
 }
+-- List of immune entities for galvanized machines or wtv
+local immunity = {
+    ["galvanized-assembling-machine"] = true,
+    ["galvanized-furnace"] = true,
+}
+
 
 script.on_event(defines.events.on_tick, function(event)
     if event.tick % DAMAGE_INTERVAL ~= 0 then return end
--- Search your selected surface
+    -- Search your selected surface
     local surface = game.surfaces[TARGET_SURFACE]
     if not surface then return end
     -- Search your selected machine types
@@ -19,7 +25,9 @@ script.on_event(defines.events.on_tick, function(event)
         local entities = surface.find_entities_filtered { type = machine_types, force = "player" }
         for _, entity in pairs(entities) do
             if entity.valid and entity.health and entity.destructible then
-                entity.damage(DAMAGE_AMOUNT, "neutral", DAMAGE_TYPE)
+                if not immunity[entity.name] then
+                    entity.damage(DAMAGE_AMOUNT, "neutral", DAMAGE_TYPE)
+                end
             end
         end
     end
